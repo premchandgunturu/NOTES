@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -227,7 +228,7 @@ fun OnboardingScreen(viewModel: ConsistencyHubViewModel) {
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.TrendingUp,
+                    imageVector = Icons.AutoMirrored.Filled.TrendingUp,
                     contentDescription = "App Icon Logo",
                     tint = SamsungBlue,
                     modifier = Modifier.size(40.dp)
@@ -638,7 +639,11 @@ fun DashboardScreen(viewModel: ConsistencyHubViewModel) {
                                                     putExtra(android.content.Intent.EXTRA_TEXT, "“$randomQuote” — Shared from Consistency Hub")
                                                     type = "text/plain"
                                                 }
-                                                context.startActivity(android.content.Intent.createChooser(shareIntent, "Share Daily Motivation"))
+                                                try {
+                                                    context.startActivity(android.content.Intent.createChooser(shareIntent, "Share Daily Motivation"))
+                                                } catch (e: Exception) {
+                                                    android.widget.Toast.makeText(context, "No app available to share", android.widget.Toast.LENGTH_SHORT).show()
+                                                }
                                             },
                                             modifier = Modifier.size(32.dp)
                                         ) {
@@ -817,11 +822,11 @@ fun ProfileTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
         ) {
             Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 ProfileDetailItem("Username Identifier", "@${activeUser ?: "study_grinder"}", Icons.Default.AccountCircle, themeTextPrimary, themeTextSecondary)
-                Divider(color = themeBorder.copy(alpha = 0.5f))
+                HorizontalDivider(color = themeBorder.copy(alpha = 0.5f))
                 ProfileDetailItem("Workspace Role", "Consistency Elite Pro", Icons.Default.Verified, themeTextPrimary, themeTextSecondary)
-                Divider(color = themeBorder.copy(alpha = 0.5f))
+                HorizontalDivider(color = themeBorder.copy(alpha = 0.5f))
                 ProfileDetailItem("Active Streak", "7 Days Streak", Icons.Default.Stars, themeTextPrimary, themeTextSecondary)
-                Divider(color = themeBorder.copy(alpha = 0.5f))
+                HorizontalDivider(color = themeBorder.copy(alpha = 0.5f))
                 ProfileDetailItem("Device Security", "Biometric Local Sync", Icons.Default.Security, themeTextPrimary, themeTextSecondary)
             }
         }
@@ -841,7 +846,7 @@ fun ProfileTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
             shape = RoundedCornerShape(24.dp)
         ) {
             Icon(
-                imageVector = Icons.Default.ExitToApp,
+                imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                 contentDescription = "Log out",
                 modifier = Modifier.size(20.dp),
                 tint = Color.White

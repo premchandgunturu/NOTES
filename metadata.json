@@ -1,8 +1,6 @@
 {
-  "name": "Remix: Consistency Hub",
+  "name": "Consistency Hub",
   "description": "A modernized productivity and study tracking companion designed with a polished One UI design paradigm and a Pure Black aesthetic.",
   "requestFramePermissions": [],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ]
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
