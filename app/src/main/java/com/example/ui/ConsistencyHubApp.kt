@@ -711,7 +711,7 @@ fun DashboardScreen(viewModel: ConsistencyHubViewModel) {
                                 Text(
                                     text = when (tab) {
                                         DashboardTab.Tasks -> "Tasks"
-                                        DashboardTab.Thoughts -> "Vault"
+                                        DashboardTab.Notes -> "Vault"
                                         DashboardTab.Metrics -> "Metrics"
                                         DashboardTab.Profile -> "Profile"
                                     },
@@ -741,7 +741,7 @@ fun DashboardScreen(viewModel: ConsistencyHubViewModel) {
                 ) { tab ->
                     when (tab) {
                         DashboardTab.Tasks -> TaskTrackerTab(viewModel, isLight)
-                        DashboardTab.Thoughts -> ThoughtVaultTab(viewModel, isLight)
+                        DashboardTab.Notes -> NotesTab(viewModel, isLight)
                         DashboardTab.Metrics -> MetricTrackerTab(viewModel, isLight)
                         DashboardTab.Profile -> ProfileTab(viewModel, isLight)
                     }
@@ -1816,7 +1816,7 @@ fun TaskTrackerTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
 // ==========================================
 
 @Composable
-fun ThoughtVaultTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
+fun NotesTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
     val displayedThoughts by viewModel.filteredThoughts.collectAsStateWithLifecycle()
     val rawSearch by viewModel.thoughtSearchQuery.collectAsStateWithLifecycle()
 

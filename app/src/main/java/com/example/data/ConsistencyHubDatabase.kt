@@ -25,6 +25,18 @@ data class Task(
     val alertTime: Long? = null
 )
 
+@Entity(tableName = "notes")
+data class Note(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val title: String,
+    val description: String,
+    val tags: String, // Comma-separated tags
+    val timestamp: Long = System.currentTimeMillis(),
+    val priority: Int = 0, // 0: Low, 1: Medium, 2: High
+    val backgroundUri: String? = null,
+    val filePath: String? = null
+)
+
 @Entity(tableName = "thoughts")
 data class Thought(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
@@ -77,6 +89,19 @@ interface AppDao {
     @Query("DELETE FROM thoughts WHERE id = :thoughtId")
     suspend fun deleteThought(thoughtId: Int)
 
+    // Note queries
+    @Query("SELECT * FROM notes ORDER BY timestamp DESC")
+    fun getAllNotes(): Flow<List<Note>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertNote(note: Note)
+
+    @Update
+    suspend fun updateNote(note: Note)
+
+    @Query("DELETE FROM notes WHERE id = :noteId")
+    suspend fun deleteNote(noteId: Int)
+
     // Study Hour logs queries
     @Query("SELECT * FROM study_logs ORDER BY timestamp DESC")
     fun getAllStudyLogs(): Flow<List<StudyLog>>
@@ -93,8 +118,8 @@ interface AppDao {
 // ==========================================
 
 @Database(
-    entities = [User::class, Task::class, Thought::class, StudyLog::class],
-    version = 2,
+    entities = [User::class, Task::class, Thought::class, Note::class, StudyLog::class],
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -143,6 +168,14 @@ class AppRepository(private val appDao: AppDao) {
     suspend fun insertThought(thought: Thought) = appDao.insertThought(thought)
 
     suspend fun deleteThought(thoughtId: Int) = appDao.deleteThought(thoughtId)
+
+    val allNotes: Flow<List<Note>> = appDao.getAllNotes()
+
+    suspend fun insertNote(note: Note) = appDao.insertNote(note)
+
+    suspend fun updateNote(note: Note) = appDao.updateNote(note)
+
+    suspend fun deleteNote(noteId: Int) = appDao.deleteNote(noteId)
 
     val allStudyLogs: Flow<List<StudyLog>> = appDao.getAllStudyLogs()
 

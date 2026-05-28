@@ -32,7 +32,7 @@ enum class AppScreen {
 // Top-level selected workspace tab
 enum class DashboardTab {
     Tasks,     // Focus List
-    Thoughts,  // Knowledge Archive
+    Notes,  // Knowledge Archive
     Metrics,    // Consistency Hub
     Profile    // Profile Hub
 }
@@ -83,6 +83,9 @@ class ConsistencyHubViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val studyLogs: StateFlow<List<StudyLog>> = repository.allStudyLogs
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val notes: StateFlow<List<Note>> = repository.allNotes
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     // Filtered thoughts based on search queries
