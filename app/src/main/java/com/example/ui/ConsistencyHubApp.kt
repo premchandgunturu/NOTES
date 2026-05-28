@@ -46,6 +46,7 @@ import com.example.viewmodel.*
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.Calendar
 
 // ==========================================
 // CUSTOM KINETIC MOTION & SPRING MODIFIERS
@@ -454,6 +455,12 @@ fun DashboardScreen(viewModel: ConsistencyHubViewModel) {
     val randomQuote by viewModel.activeQuote.collectAsStateWithLifecycle()
     val isLight by viewModel.isLightMode.collectAsStateWithLifecycle()
 
+    val oneUiVer by viewModel.oneUiVersion.collectAsStateWithLifecycle()
+    val galaxyAiAnalysis by viewModel.galaxyAiAnalysis.collectAsStateWithLifecycle()
+    val isGalaxyAiProcessing by viewModel.isGalaxyAiProcessing.collectAsStateWithLifecycle()
+
+    var isAiHubExpanded by remember { mutableStateOf(false) }
+
     val greetingPair = viewModel.getDynamicGreetingAndIcon()
 
     val themeTextPrimary = if (isLight) Color(0xFF111827) else TextPrimary
@@ -753,6 +760,12 @@ fun ProfileTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
     val activeUser by viewModel.currentUsername.collectAsStateWithLifecycle()
     val activeUserFullName by viewModel.currentUserFullName.collectAsStateWithLifecycle()
     
+    val oneUiVer by viewModel.oneUiVersion.collectAsStateWithLifecycle()
+    val galaxyAiAnalysis by viewModel.galaxyAiAnalysis.collectAsStateWithLifecycle()
+    val isGalaxyAiProcessing by viewModel.isGalaxyAiProcessing.collectAsStateWithLifecycle()
+    
+    var isAiHubExpanded by remember { mutableStateOf(false) }
+    
     val displayName = activeUserFullName ?: "Premchand Gunturu"
     val initials = displayName.split(" ")
         .filter { it.isNotEmpty() }
@@ -828,6 +841,207 @@ fun ProfileTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
                 ProfileDetailItem("Active Streak", "7 Days Streak", Icons.Default.Stars, themeTextPrimary, themeTextSecondary)
                 HorizontalDivider(color = themeBorder.copy(alpha = 0.5f))
                 ProfileDetailItem("Device Security", "Biometric Local Sync", Icons.Default.Security, themeTextPrimary, themeTextSecondary)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Samsung One UI 8.5 Interactive Engine Card in Profile
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("oneui_8_5_control_hub"),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = if (isLight) Color(0xFFFFFFFF) else Color(0xFF111622)
+            ),
+            border = BorderStroke(1.dp, if (isLight) Color(0xFFE2E8F0) else Color(0x11FFFFFF))
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { isAiHubExpanded = !isAiHubExpanded },
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.AutoAwesome,
+                            contentDescription = "Galaxy AI Active Icon",
+                            tint = SamsungBlue,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Galaxy AI & One UI 8.5 Hub",
+                            color = themeTextPrimary,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 0.2.sp
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (isLight) Color(0x333B82F6) else Color(0x1F3B82F6))
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = "v$oneUiVer Active",
+                            color = SamsungBlue,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+                
+                if (isAiHubExpanded) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    HorizontalDivider(color = if (isLight) Color(0xFFE2E8F0) else Color(0x1F252528))
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    // Choice 1: Samsung UI Version Selector
+                    Text(
+                        text = "SAMSUNG ONE UI INTERACTIVE VERSION",
+                        color = themeTextTertiary,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.5.sp
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        val versions = listOf("8.5", "8.0", "7.1")
+                        versions.forEach { ver ->
+                            val isSel = oneUiVer == ver
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(if (isSel) SamsungBlue else (if (isLight) Color(0xFFF1F5F9) else Color(0xFF1B2230)))
+                                    .border(
+                                        width = 1.dp,
+                                        color = if (isSel) SamsungBlue else (if (isLight) Color(0xFFE2E8F0) else Color(0x1F252528)),
+                                        shape = RoundedCornerShape(12.dp)
+                                    )
+                                    .clickable { viewModel.oneUiVersion.value = ver }
+                                    .padding(vertical = 8.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                // Dynamic radius adapting to selected One UI version
+                                val labelText = when(ver) {
+                                    "8.5" -> "One UI 8.5"
+                                    "8.0" -> "One UI 8.0"
+                                    else -> "One UI 7.1"
+                                }
+                                Text(
+                                    text = labelText,
+                                    color = if (isSel) Color.White else themeTextSecondary,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Choice 2: Galaxy AI Productivity Audit
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "GALAXY AI STUDY ENGINE",
+                                color = themeTextTertiary,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.5.sp
+                            )
+                            Text(
+                                text = "Review study goals and notes instantly",
+                                color = themeTextSecondary,
+                                fontSize = 11.sp
+                            )
+                        }
+                        Button(
+                            onClick = { viewModel.triggerGalaxyAi() },
+                            enabled = !isGalaxyAiProcessing,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = SamsungBlue,
+                                contentColor = Color.White,
+                                disabledContainerColor = SamsungBlue.copy(alpha = 0.5f)
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            if (isGalaxyAiProcessing) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(14.dp),
+                                    color = Color.White,
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.AutoAwesome,
+                                        contentDescription = "Audit Icon",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(13.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Audit", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                    }
+                    
+                    galaxyAiAnalysis?.let { analysisText ->
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(if (isLight) Color(0xFFF8FAFC) else Color(0xFF1E2638))
+                                .border(1.dp, if (isLight) Color(0xFFE2E8F0) else Color(0x1AFFFFFF), RoundedCornerShape(16.dp))
+                                .padding(12.dp)
+                        ) {
+                            Column {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.Verified,
+                                        contentDescription = "Galaxy Secure Advisor",
+                                        tint = ActiveEmerald,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "Galaxy Intelligence Advisory",
+                                        color = ActiveEmerald,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = analysisText,
+                                    color = themeTextPrimary,
+                                    fontSize = 12.sp,
+                                    lineHeight = 17.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -922,6 +1136,35 @@ fun TaskTrackerTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
     val customTagVal by viewModel.customTagInput.collectAsStateWithLifecycle()
 
     var showAlertDialogForTask by remember { mutableStateOf<Task?>(null) }
+
+    // Dialog state variables (declared at top Tab-level for absolute compose safety)
+    var dayOffset by remember { mutableStateOf(0) }
+    var hourSelected by remember { mutableStateOf(12) }
+    var minuteSelected by remember { mutableStateOf(0) }
+
+    LaunchedEffect(showAlertDialogForTask) {
+        if (showAlertDialogForTask != null) {
+            dayOffset = 0
+            val cal = Calendar.getInstance().apply { add(Calendar.MINUTE, 15) }
+            hourSelected = cal.get(Calendar.HOUR_OF_DAY)
+            val m = cal.get(Calendar.MINUTE)
+            minuteSelected = (m / 5) * 5
+        }
+    }
+
+    val targetCalendar = remember(dayOffset, hourSelected, minuteSelected) {
+        Calendar.getInstance().apply {
+            add(Calendar.DAY_OF_YEAR, dayOffset)
+            set(Calendar.HOUR_OF_DAY, hourSelected)
+            set(Calendar.MINUTE, minuteSelected)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+    }
+
+    val targetFormatted = remember(targetCalendar) {
+        SimpleDateFormat("EEE, MMM dd 'at' HH:mm", Locale.getDefault()).format(targetCalendar.time)
+    }
 
     val themeTextPrimary = if (isLight) Color(0xFF111827) else TextPrimary
     val themeTextSecondary = if (isLight) Color(0xFF4B5563) else TextSecondary
@@ -1295,9 +1538,10 @@ fun TaskTrackerTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
         }
     }
 
-    // Modal popup option sheets to schedule target future alert times (Mock reminders)
+    // Modal popup option sheets to schedule target future alert times
     if (showAlertDialogForTask != null) {
         val targetTask = showAlertDialogForTask!!
+        
         Dialog(onDismissRequest = { showAlertDialogForTask = null }) {
             Card(
                 modifier = Modifier
@@ -1326,36 +1570,240 @@ fun TaskTrackerTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
                         modifier = Modifier.padding(top = 4.dp, bottom = 18.dp)
                     )
 
-                    val delayOptions = listOf(
-                        Pair("In 5 mins", 5),
-                        Pair("In 15 mins", 15),
-                        Pair("In 1 hour", 60),
-                        Pair("In 3 hours", 180)
+                    // CUSTOM DATE & TIME PICKER SECTION
+                    Text(
+                        text = "CHOOSE EXACT REMINDER DATE",
+                        color = themeTextTertiary,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.5.sp,
+                        modifier = Modifier.align(Alignment.Start).padding(bottom = 6.dp)
                     )
 
-                    delayOptions.forEach { opt ->
-                        Button(
-                            onClick = {
-                                viewModel.scheduleTaskAlert(targetTask, opt.second)
-                                showAlertDialogForTask = null
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isLight) Color(0xFFF1F5F9) else GlassCardBackground
-                            ),
-                            border = BorderStroke(0.5.dp, themeBorder),
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Text(text = opt.first, color = SamsungBlue, fontWeight = FontWeight.Bold)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        listOf(
+                            Pair("Today", 0),
+                            Pair("Tomorrow", 1),
+                            Pair("In 2 Days", 2),
+                            Pair("In 3 Days", 3)
+                        ).forEach { (dayLabel, offset) ->
+                            val isSel = dayOffset == offset
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(if (isSel) SamsungBlue else (if (isLight) Color(0xFFF1F5F9) else Color(0xFF1B2230)))
+                                    .border(
+                                        width = 1.dp,
+                                        color = if (isSel) SamsungBlue else (if (isLight) Color(0xFFE2E8F0) else Color(0x1F252528)),
+                                        shape = RoundedCornerShape(10.dp)
+                                    )
+                                    .clickable { dayOffset = offset }
+                                    .padding(vertical = 8.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = dayLabel,
+                                    color = if (isSel) Color.White else themeTextSecondary,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Hour Stepper
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "HOUR",
+                                color = themeTextTertiary,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.5.sp
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(if (isLight) Color(0xFFE2E8F0) else Color(0x33374151))
+                                        .clickable {
+                                            hourSelected = (hourSelected + 23) % 24
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("-", color = themeTextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                }
+                                
+                                Text(
+                                    text = String.format("%02d", hourSelected),
+                                    color = themeTextPrimary,
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.ExtraBold
+                                )
+                                
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(if (isLight) Color(0xFFE2E8F0) else Color(0x33374151))
+                                        .clickable {
+                                            hourSelected = (hourSelected + 1) % 24
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("+", color = themeTextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                        
+                        Text(
+                            text = ":",
+                            color = themeTextSecondary,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            modifier = Modifier.padding(top = 16.dp)
+                        )
+                        
+                        // Minute Stepper
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "MINUTE",
+                                color = themeTextTertiary,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.5.sp
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(if (isLight) Color(0xFFE2E8F0) else Color(0x33374151))
+                                        .clickable {
+                                            minuteSelected = (minuteSelected + 55) % 60
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("-", color = themeTextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                }
+                                
+                                Text(
+                                    text = String.format("%02d", minuteSelected),
+                                    color = themeTextPrimary,
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.ExtraBold
+                                )
+                                
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(if (isLight) Color(0xFFE2E8F0) else Color(0x33374151))
+                                        .clickable {
+                                            minuteSelected = (minuteSelected + 5) % 60
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("+", color = themeTextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
                         }
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
+                    
+                    Text(
+                        text = "ALERT TARGET: $targetFormatted",
+                        color = SamsungBlue,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.2.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = {
+                            viewModel.scheduleTaskAlertExact(targetTask, targetCalendar.timeInMillis)
+                            showAlertDialogForTask = null
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = SamsungBlue
+                        ),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        Text("Confirm Custom Alarm", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider(color = themeBorder.copy(alpha = 0.5f))
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // QUICK DELAY PRESETS
+                    Text(
+                        text = "QUICK ALARM PRESETS",
+                        color = themeTextTertiary,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.5.sp,
+                        modifier = Modifier.align(Alignment.Start).padding(bottom = 6.dp)
+                    )
+
+                    val delayOptions = listOf(
+                        Pair("In 5 mins", 5),
+                        Pair("In 15 mins", 15),
+                        Pair("In 1 hour", 60)
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        delayOptions.forEach { opt ->
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(if (isLight) Color(0xFFF8FAFC) else Color(0x331F2937))
+                                    .border(0.5.dp, themeBorder, RoundedCornerShape(10.dp))
+                                    .clickable {
+                                        viewModel.scheduleTaskAlert(targetTask, opt.second)
+                                        showAlertDialogForTask = null
+                                    }
+                                    .padding(vertical = 10.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(text = opt.first, color = SamsungBlue, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     TextButton(onClick = { showAlertDialogForTask = null }) {
-                        Text(text = "Dismiss", color = if (isLight) Color(0xFFEF4444) else PastelRed)
+                        Text(text = "Dismiss", color = if (isLight) Color(0xFFEF4444) else PastelRed, fontWeight = FontWeight.Bold)
                     }
                 }
             }

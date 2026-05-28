@@ -9,7 +9,19 @@ import androidx.lifecycle.viewModelScope
 import com.example.data.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.Calendar
+import java.util.Date
+import java.text.SimpleDateFormat
+import java.util.Locale
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.os.Build
+import com.example.AlertNotificationReceiver
 
 // Screen state
 enum class AppScreen {
@@ -43,6 +55,11 @@ class ConsistencyHubViewModel(
     val loginPasswordInput = MutableStateFlow("")
     val onboardingError = MutableStateFlow<String?>(null)
     val onboardingSuccessMessage = MutableStateFlow<String?>(null)
+
+    // Samsung One UI 8.5 Engine states
+    val oneUiVersion = MutableStateFlow("8.5")
+    val galaxyAiAnalysis = MutableStateFlow<String?>(null)
+    val isGalaxyAiProcessing = MutableStateFlow(false)
 
     // Task tracker form inputs
     val taskTitleInput = MutableStateFlow("")
@@ -194,6 +211,32 @@ class ConsistencyHubViewModel(
         activeQuote.value = remaining.random()
     }
 
+    // Samsung Galaxy AI Engine Simulation for One UI 8.5
+    fun triggerGalaxyAi() {
+        if (isGalaxyAiProcessing.value) return
+        viewModelScope.launch {
+            isGalaxyAiProcessing.value = true
+            galaxyAiAnalysis.value = null
+            delay(1200) // Aesthetic simulated One UI loading duration
+            
+            val activeTasksCount = tasks.value.count { !it.isCompleted }
+            val doneTasksCount = tasks.value.count { it.isCompleted }
+            val totalHours = studyLogs.value.map { it.durationHours }.sum()
+            val thoughtsCount = rawThoughts.value.size
+            
+            galaxyAiAnalysis.value = when {
+                activeTasksCount == 0 && totalHours == 0.0 && thoughtsCount == 0 -> {
+                    "Galaxy AI Core [Model UX-8.5]: Hello! Absolute Grinder sandbox is active. To unlock personalized predictive insights, begin adding study tasks or writing deep focus concepts in the Vault."
+                }
+                else -> {
+                    val topSubject = tasks.value.groupBy { it.subject }.maxByOrNull { it.value.size }?.key ?: "focus blocks"
+                    "Galaxy AI Core [Model UX-8.5]: Checked study rhythm. $activeTasksCount objectives on hold, $doneTasksCount finalized, with $totalHours hours of logged work. Peak velocity is in $topSubject. Suggesting 45m deep focus slots paired with micro-intervals to sustain progress."
+                }
+            }
+            isGalaxyAiProcessing.value = false
+        }
+    }
+
     // Dynamic Time Welcome Greeting
     fun getDynamicGreetingAndIcon(): Pair<String, String> {
         val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
@@ -310,21 +353,95 @@ class ConsistencyHubViewModel(
 
     fun toggleTask(task: Task) {
         viewModelScope.launch {
-            repository.updateTask(task.copy(isCompleted = !task.isCompleted))
+            withContext(Dispatchers.IO) {
+                repository.updateTask(task.copy(isCompleted = !task.isCompleted))
+            }
         }
     }
 
     fun deleteTask(id: Int) {
         viewModelScope.launch {
-            repository.deleteTask(id)
+            withContext(Dispatchers.IO) {
+                repository.deleteTask(id)
+            }
         }
     }
 
     fun scheduleTaskAlert(task: Task, minutes: Int) {
+        val alertEpoch = System.currentTimeMillis() + (minutes * 60L * 1000L)
+        scheduleTaskAlertExact(task, alertEpoch)
+    }
+
+    fun scheduleTaskAlertExact(task: Task, alertEpoch: Long) {
         viewModelScope.launch {
-            val alertEpoch = System.currentTimeMillis() + (minutes * 60 * 1000)
-            repository.updateTask(task.copy(alertTime = alertEpoch))
-            Toast.makeText(application, "Alert scheduled in $minutes mins for: ${task.title}", Toast.LENGTH_LONG).show()
+            withContext(Dispatchers.IO) {
+                repository.updateTask(task.copy(alertTime = alertEpoch))
+            }
+            
+            val context: Context = getApplication()
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            
+            // Explicit intent pointing directly to our receiver
+            val intent = Intent(context, AlertNotificationReceiver::class.java).apply {
+                putExtra("TASK_ID", task.id)
+                putExtra("TASK_TITLE", task.title)
+                putExtra("TASK_SUBJECT", task.subject)
+            }
+            
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                task.id,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            
+            // ShowIntent for AlarmClockInfo so clicking redirects the user back to the app
+            val showIntent = PendingIntent.getActivity(
+                context,
+                1000 + task.id,
+                Intent(context, com.example.MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    if (alarmManager.canScheduleExactAlarms()) {
+                        // If exact alarm permission is already granted, use exact and allow while idle
+                        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alertEpoch, pendingIntent)
+                    } else {
+                        // If exact alarms permission is not granted, setAlarmClock is EXEMPTED from this check
+                        // and guarantees exact delivery! We fallback to it proudly.
+                        val alarmClockInfo = AlarmManager.AlarmClockInfo(alertEpoch, showIntent)
+                        alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
+                    }
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    // Below Android 12 but above Android 6: setExactAndAllowWhileIdle is exact and doesn't require extra permission
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alertEpoch, pendingIntent)
+                } else {
+                    // Below Android 6: setExact is fully exact and wakeable
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, alertEpoch, pendingIntent)
+                }
+                
+                val formattedTime = SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault()).format(Date(alertEpoch))
+                Toast.makeText(context, "Alert scheduled precisely for: $formattedTime", Toast.LENGTH_LONG).show()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                // A stable non-exact fallback just in case some custom/forked OEM OS has broken alarms/clocks
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alertEpoch, pendingIntent)
+                    } else {
+                        alarmManager.set(AlarmManager.RTC_WAKEUP, alertEpoch, pendingIntent)
+                    }
+                    val formattedTime = SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault()).format(Date(alertEpoch))
+                    Toast.makeText(context, "Alert scheduled (standard power-saving): $formattedTime", Toast.LENGTH_LONG).show()
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                    Toast.makeText(context, "Could not set system alarm. Task alerted internally.", Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 

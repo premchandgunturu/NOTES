@@ -19,6 +19,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // Request Push Notification Permissions on modern Android 13+ (API 33) devices
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            val permissionRule = android.Manifest.permission.POST_NOTIFICATIONS
+            if (checkSelfPermission(permissionRule) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(permissionRule), 101)
+            }
+        }
+
         // Initialize Room Database persistence modules
         val database = AppDatabase.getDatabase(applicationContext)
         val repository = AppRepository(database.appDao())
