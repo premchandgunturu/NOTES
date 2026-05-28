@@ -45,7 +45,7 @@ class AlertNotificationReceiver : BroadcastReceiver() {
         )
 
         val builder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_info) // Fully stable native Android system icon
+            .setSmallIcon(com.example.R.mipmap.ic_launcher) // App's native launcher icon for absolute safety
             .setContentTitle("Focus Alert — $taskSubject")
             .setContentText("Time to work on: $taskTitle")
             .setPriority(NotificationCompat.PRIORITY_HIGH)

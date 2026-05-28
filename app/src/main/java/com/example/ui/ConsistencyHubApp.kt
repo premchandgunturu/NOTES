@@ -21,6 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.composed
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.*
 import androidx.compose.ui.geometry.Offset
@@ -52,11 +53,10 @@ import java.util.Calendar
 // CUSTOM KINETIC MOTION & SPRING MODIFIERS
 // ==========================================
 
-@Composable
 fun Modifier.bounceClickable(
     enabled: Boolean = true,
     onClick: () -> Unit
-): Modifier {
+): Modifier = composed {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
@@ -67,7 +67,7 @@ fun Modifier.bounceClickable(
         ),
         label = "bounceSpring"
     )
-    return this
+    this
         .graphicsLayer {
             scaleX = scale
             scaleY = scale

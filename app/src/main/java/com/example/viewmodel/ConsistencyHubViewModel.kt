@@ -406,21 +406,13 @@ class ConsistencyHubViewModel(
             )
             
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    if (alarmManager.canScheduleExactAlarms()) {
-                        // If exact alarm permission is already granted, use exact and allow while idle
-                        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alertEpoch, pendingIntent)
-                    } else {
-                        // If exact alarms permission is not granted, setAlarmClock is EXEMPTED from this check
-                        // and guarantees exact delivery! We fallback to it proudly.
-                        val alarmClockInfo = AlarmManager.AlarmClockInfo(alertEpoch, showIntent)
-                        alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
-                    }
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    // Below Android 12 but above Android 6: setExactAndAllowWhileIdle is exact and doesn't require extra permission
-                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alertEpoch, pendingIntent)
+                // setAlarmClock is guaranteed to be exact and is the most reliable way on Android 6+ (API 23+)
+                // It is designed specifically for "alert" and "clock" applications.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    val alarmClockInfo = AlarmManager.AlarmClockInfo(alertEpoch, showIntent)
+                    alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
                 } else {
-                    // Below Android 6: setExact is fully exact and wakeable
+                    // Below Android 6: setExact is fully exact
                     alarmManager.setExact(AlarmManager.RTC_WAKEUP, alertEpoch, pendingIntent)
                 }
                 
