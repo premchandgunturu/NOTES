@@ -2356,33 +2356,42 @@ fun MetricTrackerTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        val context = LocalContext.current
-        Button(
-            onClick = {
-                val reportPath = viewModel.generatePdfReport()
-                if (reportPath.isNotEmpty()) {
-                    android.widget.Toast.makeText(context, "PDF Report saved at: $reportPath", android.widget.Toast.LENGTH_LONG).show()
-                } else {
-                    android.widget.Toast.makeText(context, "Failed to generate report", android.widget.Toast.LENGTH_LONG).show()
-                }
-            },
-            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+        // Actions Header
+        Text(
+            text = "Data Management",
+            color = themeTextPrimary,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+        
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Download PDF Report")
-        }
-
-        Button(
-            onClick = {
-                val exportPath = viewModel.exportStudyLogsToJson()
-                if (exportPath.isNotEmpty()) {
-                    android.widget.Toast.makeText(context, "JSON Export saved at: $exportPath", android.widget.Toast.LENGTH_LONG).show()
-                } else {
-                    android.widget.Toast.makeText(context, "Failed to export JSON", android.widget.Toast.LENGTH_LONG).show()
-                }
-            },
-            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
-        ) {
-            Text("Export JSON Data")
+            OutlinedButton(
+                onClick = {
+                    val reportPath = viewModel.generatePdfReport()
+                    if (reportPath.isNotEmpty()) {
+                        android.widget.Toast.makeText(context, "PDF Report saved", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                },
+                modifier = Modifier.weight(1f).height(48.dp)
+            ) {
+                Text("PDF Report")
+            }
+            
+            OutlinedButton(
+                onClick = {
+                    val exportPath = viewModel.exportStudyLogsToJson()
+                    if (exportPath.isNotEmpty()) {
+                        android.widget.Toast.makeText(context, "JSON Exported", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                },
+                modifier = Modifier.weight(1f).height(48.dp)
+            ) {
+                Text("Export JSON")
+            }
         }
 
         // Set Daily Goal
@@ -2393,7 +2402,7 @@ fun MetricTrackerTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
                 it.toDoubleOrNull()?.let { goal -> viewModel.updateDailyGoal(goal) }
             },
             label = { Text("Daily Study Goal (Hours)") },
-            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp).animateContentSize()
+            modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp).animateContentSize()
         )
 
         // 7-Day Goal Tracker Canvas & Progress Bars
