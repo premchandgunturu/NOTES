@@ -8,18 +8,16 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import kotlinx.coroutines.runBlocking
+import java.util.Calendar
 
 class AlertNotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        android.util.Log.d("AlertReceiver", "onReceive triggered!")
-        val taskId = intent.getIntExtra("TASK_ID", 0)
-        android.util.Log.d("AlertReceiver", "TaskId: $taskId")
-        val taskTitle = intent.getStringExtra("TASK_TITLE") ?: "Study Session"
-        val taskSubject = intent.getStringExtra("TASK_SUBJECT") ?: "Focus"
-
+        val notificationType = intent.getStringExtra("NOTIFICATION_TYPE")
+        
         val channelId = "consistency_hub_alerts"
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
+        
         // Create the NotificationChannel on API 26+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "Study Objective Reminders"
@@ -28,36 +26,61 @@ class AlertNotificationReceiver : BroadcastReceiver() {
             val channel = NotificationChannel(channelId, name, importance).apply {
                 description = descriptionText
                 enableVibration(true)
-                vibrationPattern = longArrayOf(100, 200, 300, 400, 500, 400, 300, 200, 400)
             }
             notificationManager.createNotificationChannel(channel)
         }
 
-        // Action to open MainActivity when clicking the notification
         val mainIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
-        val pendingIntent = PendingIntent.getActivity(
-            context,
-            taskId,
-            mainIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
+        
         val builder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(com.example.R.mipmap.ic_launcher) // App's native launcher icon for absolute safety
-            .setContentTitle("Focus Alert — $taskSubject")
-            .setContentText("Time to work on: $taskTitle")
+            .setSmallIcon(com.example.R.mipmap.ic_launcher)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setAutoCancel(true)
-            .setContentIntent(pendingIntent)
-            .setDefaults(NotificationCompat.DEFAULT_ALL)
 
-        try {
+        if (notificationType == "WEEKLY_PERFORMANCE") {
+            // Fetch logs for summary
+            val logs = runBlocking {
+                com.example.data.AppDatabase.getDatabase(context).appDao().getAllStudyLogsList()
+            }
+            val lastWeekLogs = logs.filter { log ->
+                val calendar = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -7) }
+                log.timestamp >= calendar.timeInMillis
+            }
+            val totalHours = lastWeekLogs.sumOf { it.durationHours }
+            val topics = lastWeekLogs.map { it.topic }.distinct().joinToString(", ")
+            
+            builder.setContentTitle("Weekly Performance Review")
+                .setContentText("Total: $totalHours hours. Accomplishments: $topics")
+                .setStyle(NotificationCompat.BigTextStyle().bigText("Total: $totalHours hours. Accomplishments: $topics"))
+            
+            val pendingIntent = PendingIntent.getActivity(
+                context,
+                999,
+                mainIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            builder.setContentIntent(pendingIntent)
+            notificationManager.notify(999, builder.build())
+        } else {
+            val taskId = intent.getIntExtra("TASK_ID", 0)
+            val taskTitle = intent.getStringExtra("TASK_TITLE") ?: "Study Session"
+            val taskSubject = intent.getStringExtra("TASK_SUBJECT") ?: "Focus"
+            
+            val pendingIntent = PendingIntent.getActivity(
+                context,
+                taskId,
+                mainIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            
+            builder.setContentTitle("Focus Alert — $taskSubject")
+                .setContentText("Time to work on: $taskTitle")
+                .setContentIntent(pendingIntent)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+            
             notificationManager.notify(taskId, builder.build())
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 }

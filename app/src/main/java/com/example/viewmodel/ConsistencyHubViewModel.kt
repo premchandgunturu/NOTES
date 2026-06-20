@@ -33,6 +33,7 @@ enum class AppScreen {
 enum class DashboardTab {
     Tasks,     // Focus List
     Notes,  // Knowledge Archive
+    Pomodoro,   // Pomodoro Focus Timer
     Metrics,    // Consistency Hub
     Profile    // Profile Hub
 }
@@ -65,15 +66,133 @@ class ConsistencyHubViewModel(
     val taskTitleInput = MutableStateFlow("")
     val selectedSubjectPreset = MutableStateFlow("Algorithm") // Preset default
     val customTagInput = MutableStateFlow("")
+    val taskDeadlineInput = MutableStateFlow<Long?>(null) // Deadline timestamp, null if none
 
     // Thought Vault inputs & search filters
     val thoughtDescriptionInput = MutableStateFlow("")
     val thoughtTagsInput = MutableStateFlow("") // comma separated lists
     val thoughtSearchQuery = MutableStateFlow("")
 
+    // Note creation inputs
+    val noteTitleInput = MutableStateFlow("")
+    val noteDescriptionInput = MutableStateFlow("")
+    val noteTagsInput = MutableStateFlow("")
+    val notePriorityInput = MutableStateFlow(0) // 0, 1, 2
+    val noteBackgroundUriInput = MutableStateFlow("")
+    val noteFilePathInput = MutableStateFlow("")
+
     // Metric tracker inputs
     val studyHoursInput = MutableStateFlow("")
     val studyTopicInput = MutableStateFlow("")
+    val dailyGoalInput = MutableStateFlow("10.0") // Default
+    val dailyGoal = MutableStateFlow(10.0)
+
+    // Pomodoro Timer State
+    val timerDuration = MutableStateFlow(25L * 60 * 1000) // 25 mins default
+    val timeLeft = MutableStateFlow(25L * 60 * 1000)
+    val isTimerRunning = MutableStateFlow(false)
+    val isSoundEnabled = MutableStateFlow(true)
+    private var timerJob: kotlinx.coroutines.Job? = null
+
+    // Pomodoro Sessions Flow
+    val pomodoroSessions: StateFlow<List<com.example.data.PomodoroSession>> =
+        repository.allPomodoroSessions.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun startTimer() {
+        if (isTimerRunning.value) return
+        isTimerRunning.value = true
+        triggerHapticFeedback(100)
+        timerJob = viewModelScope.launch {
+            while (timeLeft.value > 0) {
+                delay(1000)
+                timeLeft.value -= 1000
+            }
+            isTimerRunning.value = false
+            
+            // Save session
+            repository.insertPomodoroSession(com.example.data.PomodoroSession(durationMillis = timerDuration.value))
+            
+            showCompletionNotification()
+            playCompletionSound()
+            timeLeft.value = timerDuration.value
+        }
+    }
+
+    fun pauseTimer() {
+        isTimerRunning.value = false
+        triggerHapticFeedback(200)
+        timerJob?.cancel()
+    }
+
+    fun resetTimer() {
+        pauseTimer()
+        timeLeft.value = timerDuration.value
+    }
+
+    fun setTimerDuration(millis: Long) {
+        timerDuration.value = millis
+        timeLeft.value = millis
+    }
+
+    private fun showCompletionNotification() {
+        val notificationManager = application.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        val channelId = "timer_channel"
+        
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val channel = android.app.NotificationChannel(
+                channelId,
+                "Timer Notifications",
+                android.app.NotificationManager.IMPORTANCE_HIGH
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
+        
+        val intent = Intent(application, com.example.MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("NAVIGATE_TO_TAB", "METRICS")
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            application,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder = androidx.core.app.NotificationCompat.Builder(application, channelId)
+            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            .setContentTitle("Pomodoro Timer")
+            .setContentText("Your session has concluded. Great work!")
+            .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            
+        notificationManager.notify(1, builder.build())
+    }
+
+    private fun playCompletionSound() {
+        if (!isSoundEnabled.value) return
+        triggerHapticFeedback(500)
+        // Notification sound
+        try {
+            val soundUri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
+            val ringtone = android.media.RingtoneManager.getRingtone(application, soundUri)
+            ringtone.play()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun triggerHapticFeedback(duration: Long) {
+        val vibrator = application.getSystemService(Context.VIBRATOR_SERVICE) as? android.os.Vibrator
+        if (vibrator != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(android.os.VibrationEffect.createOneShot(duration, android.os.VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(duration)
+            }
+        }
+    }
 
     // Room DB Flow Bindings
     val tasks: StateFlow<List<Task>> = repository.allTasks
@@ -95,6 +214,20 @@ class ConsistencyHubViewModel(
         } else {
             val lowerCaseQuery = query.lowercase().trim()
             thoughtsList.filter {
+                it.description.lowercase().contains(lowerCaseQuery) ||
+                it.tags.lowercase().contains(lowerCaseQuery)
+            }
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    // Filtered notes based on search queries
+    val filteredNotes: StateFlow<List<Note>> = combine(notes, thoughtSearchQuery) { notesList, query ->
+        if (query.trim().isEmpty()) {
+            notesList
+        } else {
+            val lowerCaseQuery = query.lowercase().trim()
+            notesList.filter {
+                it.title.lowercase().contains(lowerCaseQuery) ||
                 it.description.lowercase().contains(lowerCaseQuery) ||
                 it.tags.lowercase().contains(lowerCaseQuery)
             }
@@ -168,13 +301,44 @@ class ConsistencyHubViewModel(
     init {
         rotateQuote()
         restoreSession()
-        
-        viewModelScope.launch {
-            isLightMode.collect { light ->
-                val prefs = application.getSharedPreferences("consistency_hub_prefs", android.content.Context.MODE_PRIVATE)
-                prefs.edit().putBoolean("saved_light_mode", light).apply()
-            }
-        }
+        loadThemeSetting()
+        loadDailyGoal()
+        loadSoundSetting()
+    }
+
+    private fun loadThemeSetting() {
+        val prefs = application.getSharedPreferences("consistency_hub_prefs", android.content.Context.MODE_PRIVATE)
+        isLightMode.value = prefs.getBoolean("saved_is_light_mode", true)
+    }
+
+    fun updateThemeSetting(isLight: Boolean) {
+        isLightMode.value = isLight
+        val prefs = application.getSharedPreferences("consistency_hub_prefs", android.content.Context.MODE_PRIVATE)
+        prefs.edit().putBoolean("saved_is_light_mode", isLight).apply()
+    }
+
+    private fun loadSoundSetting() {
+        val prefs = application.getSharedPreferences("consistency_hub_prefs", android.content.Context.MODE_PRIVATE)
+        isSoundEnabled.value = prefs.getBoolean("saved_sound_enabled", true)
+    }
+
+    fun updateSoundSetting(enabled: Boolean) {
+        isSoundEnabled.value = enabled
+        val prefs = application.getSharedPreferences("consistency_hub_prefs", android.content.Context.MODE_PRIVATE)
+        prefs.edit().putBoolean("saved_sound_enabled", enabled).apply()
+    }
+
+    private fun loadDailyGoal() {
+        val prefs = application.getSharedPreferences("consistency_hub_prefs", android.content.Context.MODE_PRIVATE)
+        val savedGoal = prefs.getFloat("saved_daily_goal", 10.0f).toDouble()
+        dailyGoal.value = savedGoal
+        dailyGoalInput.value = savedGoal.toString()
+    }
+
+    fun updateDailyGoal(newGoal: Double) {
+        dailyGoal.value = newGoal
+        val prefs = application.getSharedPreferences("consistency_hub_prefs", android.content.Context.MODE_PRIVATE)
+        prefs.edit().putFloat("saved_daily_goal", newGoal.toFloat()).apply()
     }
 
     private fun restoreSession() {
@@ -344,12 +508,14 @@ class ConsistencyHubViewModel(
             repository.insertTask(
                 Task(
                     title = title,
-                    subject = subjectSlug
+                    subject = subjectSlug,
+                    alertTime = taskDeadlineInput.value
                 )
             )
             // clear entry fields
             taskTitleInput.value = ""
             customTagInput.value = ""
+            taskDeadlineInput.value = null
             Toast.makeText(application, "Task added onto focus deck!", Toast.LENGTH_SHORT).show()
         }
     }
@@ -441,7 +607,7 @@ class ConsistencyHubViewModel(
     }
 
     // ==========================================
-    // THOUGHT VAULT (KNOWLEDGE ARCHIVE)
+    // THOUGHT VAULT & NOTES (KNOWLEDGE ARCHIVE)
     // ==========================================
     fun addNewThought() {
         val desc = thoughtDescriptionInput.value.trim()
@@ -468,6 +634,46 @@ class ConsistencyHubViewModel(
     fun deleteThought(id: Int) {
         viewModelScope.launch {
             repository.deleteThought(id)
+        }
+    }
+    
+    fun addNewNote() {
+        val title = noteTitleInput.value.trim()
+        val desc = noteDescriptionInput.value.trim()
+        val tagsStr = noteTagsInput.value.trim()
+        val priority = notePriorityInput.value
+        val bgUri = noteBackgroundUriInput.value.trim().ifEmpty { null }
+        val filePath = noteFilePathInput.value.trim().ifEmpty { null }
+        
+        if (title.isEmpty() || desc.isEmpty()) {
+            Toast.makeText(application, "Title & description cannot be blank", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        viewModelScope.launch {
+            repository.insertNote(
+                Note(
+                    title = title,
+                    description = desc,
+                    tags = tagsStr,
+                    priority = priority,
+                    backgroundUri = bgUri,
+                    filePath = filePath
+                )
+            )
+            noteTitleInput.value = ""
+            noteDescriptionInput.value = ""
+            noteTagsInput.value = ""
+            notePriorityInput.value = 0
+            noteBackgroundUriInput.value = ""
+            noteFilePathInput.value = ""
+            Toast.makeText(application, "Note saved securely!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun deleteNote(id: Int) {
+        viewModelScope.launch {
+            repository.deleteNote(id)
         }
     }
 
@@ -557,6 +763,100 @@ class ConsistencyHubViewModel(
             WeeklyDayMetric("Sat", weekChart[Calendar.SATURDAY] ?: 0.0),
             WeeklyDayMetric("Sun", weekChart[Calendar.SUNDAY] ?: 0.0)
         )
+    }
+
+    fun generatePdfReport(): String {
+        val logs = studyLogs.value
+        val pdfDocument = android.graphics.pdf.PdfDocument()
+        val pageInfo = android.graphics.pdf.PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4
+        val page = pdfDocument.startPage(pageInfo)
+        val canvas = page.canvas
+        val paint = android.graphics.Paint()
+        paint.textSize = 16f
+        
+        var y = 50f
+        canvas.drawText("Study Report", 50f, y, paint)
+        y += 30f
+        
+        val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+        logs.forEach {
+            val text = "${dateFormat.format(java.util.Date(it.timestamp))}: ${it.durationHours} hours - ${it.topic}"
+            canvas.drawText(text, 50f, y, paint)
+            y += 25f
+        }
+        
+        pdfDocument.finishPage(page)
+        
+        // Save to cache/files dir
+        val file = java.io.File(application.filesDir, "study_report.pdf")
+        try {
+            pdfDocument.writeTo(java.io.FileOutputStream(file))
+            pdfDocument.close()
+            return file.absolutePath
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return ""
+        }
+    }
+
+    fun exportStudyLogsToJson(): String {
+        val logs = studyLogs.value
+        val jsonArray = org.json.JSONArray()
+        
+        logs.forEach { log ->
+            val jsonObject = org.json.JSONObject()
+            jsonObject.put("durationHours", log.durationHours)
+            jsonObject.put("topic", log.topic)
+            jsonObject.put("timestamp", log.timestamp)
+            jsonArray.put(jsonObject)
+        }
+        
+        val file = java.io.File(application.filesDir, "study_logs_export.json")
+        try {
+            java.io.FileWriter(file).use { it.write(jsonArray.toString(4)) }
+            return file.absolutePath
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return ""
+        }
+    }
+
+    fun scheduleWeeklyPerformanceReminder() {
+        val context: Context = getApplication()
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        
+        val intent = Intent(context, AlertNotificationReceiver::class.java).apply {
+            putExtra("NOTIFICATION_TYPE", "WEEKLY_PERFORMANCE")
+        }
+        
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            999,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // Schedule for next Sunday 9 AM
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
+            set(Calendar.HOUR_OF_DAY, 9)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            if (before(Calendar.getInstance())) {
+                add(Calendar.WEEK_OF_YEAR, 1)
+            }
+        }
+
+        try {
+            alarmManager.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                AlarmManager.INTERVAL_DAY * 7,
+                pendingIntent
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }
 

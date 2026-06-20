@@ -53,6 +53,13 @@ data class StudyLog(
     val timestamp: Long = System.currentTimeMillis()
 )
 
+@Entity(tableName = "pomodoro_sessions")
+data class PomodoroSession(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val durationMillis: Long,
+    val completedTimestamp: Long = System.currentTimeMillis()
+)
+
 // ==========================================
 // 2. DATA ACCESS OBJECT (DAO)
 // ==========================================
@@ -102,9 +109,18 @@ interface AppDao {
     @Query("DELETE FROM notes WHERE id = :noteId")
     suspend fun deleteNote(noteId: Int)
 
-    // Study Hour logs queries
+    // Pomodoro session queries
+    @Query("SELECT * FROM pomodoro_sessions ORDER BY completedTimestamp DESC")
+    fun getAllPomodoroSessions(): Flow<List<PomodoroSession>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPomodoroSession(session: PomodoroSession)
+
     @Query("SELECT * FROM study_logs ORDER BY timestamp DESC")
     fun getAllStudyLogs(): Flow<List<StudyLog>>
+
+    @Query("SELECT * FROM study_logs ORDER BY timestamp DESC")
+    suspend fun getAllStudyLogsList(): List<StudyLog>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertStudyLog(studyLog: StudyLog)
@@ -118,8 +134,8 @@ interface AppDao {
 // ==========================================
 
 @Database(
-    entities = [User::class, Task::class, Thought::class, Note::class, StudyLog::class],
-    version = 3,
+    entities = [User::class, Task::class, Thought::class, Note::class, StudyLog::class, PomodoroSession::class],
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -179,7 +195,13 @@ class AppRepository(private val appDao: AppDao) {
 
     val allStudyLogs: Flow<List<StudyLog>> = appDao.getAllStudyLogs()
 
+    suspend fun getAllStudyLogsList(): List<StudyLog> = appDao.getAllStudyLogsList()
+
     suspend fun insertStudyLog(studyLog: StudyLog) = appDao.insertStudyLog(studyLog)
 
     suspend fun deleteStudyLog(logId: Int) = appDao.deleteStudyLog(logId)
+
+    val allPomodoroSessions: Flow<List<PomodoroSession>> = appDao.getAllPomodoroSessions()
+
+    suspend fun insertPomodoroSession(session: PomodoroSession) = appDao.insertPomodoroSession(session)
 }

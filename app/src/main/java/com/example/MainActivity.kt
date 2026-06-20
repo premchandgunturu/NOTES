@@ -35,6 +35,11 @@ class MainActivity : ComponentActivity() {
         val viewModel: ConsistencyHubViewModel by viewModels {
             ConsistencyHubViewModelFactory(application, repository)
         }
+        
+        // Handle Actionable Notifications
+        if (intent.getStringExtra("NAVIGATE_TO_TAB") == "METRICS") {
+            viewModel.selectedTab.value = com.example.viewmodel.DashboardTab.Metrics
+        }
 
         setContent {
             val isLightMode by viewModel.isLightMode.collectAsState()

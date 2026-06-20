@@ -1,6 +1,6 @@
 {
   "name": "Consistency Hub",
-  "description": "A modernized productivity and study tracking companion designed with a polished One UI design paradigm and a Pure Black aesthetic.",
+  "description": "A modernized productivity study companion featuring a Pomodoro-style focus timer, study tracking, and knowledge archives designed with a One UI paradigm.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

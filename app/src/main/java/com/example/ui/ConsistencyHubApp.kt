@@ -393,7 +393,7 @@ fun OnboardingScreen(viewModel: ConsistencyHubViewModel) {
                         .height(56.dp)
                         .testTag("auth_submit_button"),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isRegisterMode) OrbitViolet else SamsungBlue,
+                        containerColor = PastelPurple,
                         contentColor = Color.White
                     ),
                     shape = RoundedCornerShape(16.dp)
@@ -497,228 +497,236 @@ fun DashboardScreen(viewModel: ConsistencyHubViewModel) {
             modifier = Modifier.fillMaxSize(),
             containerColor = Color.Transparent,
             topBar = {
-                Column(
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .statusBarsPadding()
-                        .padding(horizontal = 24.dp, vertical = 12.dp)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = when (greetingPair.second) {
-                                        "wb_sunny" -> Icons.Default.WbSunny
-                                        "adjust" -> Icons.Default.Adjust
-                                        "nights_stay" -> Icons.Default.NightsStay
-                                        else -> Icons.Default.Bedtime
-                                    },
-                                    contentDescription = "Solar Lunar Icon",
-                                    tint = if (greetingPair.second == "wb_sunny") PastelYellow else OrbitViolet,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = greetingPair.first,
-                                    color = themeTextSecondary,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = activeUserFullName ?: "Premchand Gunturu",
-                                color = themeTextPrimary,
-                                fontSize = 28.sp,
-                                fontWeight = FontWeight.ExtraBold,
-                                letterSpacing = (-0.5).sp
-                            )
-                        }
-
-                        // Theme Toggling button at top-right
-                        IconButton(
-                            onClick = { viewModel.isLightMode.value = !isLight },
-                            modifier = Modifier
-                                .size(48.dp)
-                                .clip(CircleShape)
-                                .background(if (isLight) Color(0xFFE2E8F0) else Color(0x1F252528))
-                                .border(0.5.dp, themeBorder, CircleShape)
-                                .testTag("theme_toggle")
-                        ) {
-                            Icon(
-                                imageVector = if (isLight) Icons.Default.NightsStay else Icons.Default.WbSunny,
-                                contentDescription = "Switch Theme",
-                                tint = if (isLight) OrbitViolet else PastelYellow,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }
-
-                    // Large premium Samsung One UI-style Motivation Hero Card
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Card(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .bounceClickable { viewModel.rotateQuote() }
-                            .testTag("quote_banner"),
-                        shape = RoundedCornerShape(24.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (isLight) Color(0xFFFFFFFF) else Color(0xFF141A24)
-                        ),
-                        border = BorderStroke(1.dp, if (isLight) Color(0xFFE2E8F0) else Color(0x22FFFFFF))
+                            .widthIn(max = 600.dp)
+                            .statusBarsPadding()
+                            .padding(horizontal = 24.dp, vertical = 12.dp)
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(20.dp)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = "“",
-                                color = if (isLight) Color(0x113B82F6) else Color(0x15FFFFFF),
-                                fontSize = 96.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                                    .align(Alignment.TopStart)
-                                    .offset(x = (-8).dp, y = (-36).dp)
-                            )
-
-                            Column(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
+                            Column {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(
-                                        imageVector = Icons.Default.AutoAwesome,
-                                        contentDescription = "Inspiration Star",
-                                        tint = if (isLight) SamsungBlue else OrbitViolet,
+                                        imageVector = when (greetingPair.second) {
+                                            "wb_sunny" -> Icons.Default.WbSunny
+                                            "adjust" -> Icons.Default.Adjust
+                                            "nights_stay" -> Icons.Default.NightsStay
+                                            else -> Icons.Default.Bedtime
+                                        },
+                                        contentDescription = "Solar Lunar Icon",
+                                        tint = if (greetingPair.second == "wb_sunny") PastelYellow else OrbitViolet,
                                         modifier = Modifier.size(16.dp)
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
-                                        text = "DAILY MOTIVATION",
-                                        color = if (isLight) SamsungBlue else OrbitViolet,
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        letterSpacing = 1.sp
+                                        text = greetingPair.first,
+                                        color = themeTextSecondary,
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold
                                     )
                                 }
-                                
-                                Spacer(modifier = Modifier.height(10.dp))
-                                
+                                Spacer(modifier = Modifier.height(2.dp))
                                 Text(
-                                    text = randomQuote,
+                                    text = activeUserFullName ?: "Premchand Gunturu",
                                     color = themeTextPrimary,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    lineHeight = 22.sp,
-                                    modifier = Modifier.padding(end = 16.dp)
+                                    fontSize = 28.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    letterSpacing = (-0.5).sp
                                 )
-                                
-                                Spacer(modifier = Modifier.height(12.dp))
-                                
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = "Tap quote to shuffle mindset",
-                                        color = themeTextTertiary,
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        modifier = Modifier.weight(1f)
-                                    )
+                            }
 
+                            // Theme Toggling button at top-right
+                            IconButton(
+                                onClick = { viewModel.isLightMode.value = !isLight },
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clip(CircleShape)
+                                    .background(if (isLight) Color(0xFFE2E8F0) else Color(0x1F252528))
+                                    .border(0.5.dp, themeBorder, CircleShape)
+                                    .testTag("theme_toggle")
+                            ) {
+                                Icon(
+                                    imageVector = if (isLight) Icons.Default.NightsStay else Icons.Default.WbSunny,
+                                    contentDescription = "Switch Theme",
+                                    tint = if (isLight) OrbitViolet else PastelYellow,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
+
+                        // Large premium Samsung One UI-style Motivation Hero Card
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .bounceClickable { viewModel.rotateQuote() }
+                                .testTag("quote_banner"),
+                            shape = RoundedCornerShape(24.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (isLight) Color(0xFFFFFFFF) else Color(0xFF141A24)
+                            ),
+                            border = BorderStroke(1.dp, if (isLight) Color(0xFFE2E8F0) else Color(0x22FFFFFF))
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(20.dp)
+                            ) {
+                                Text(
+                                    text = "“",
+                                    color = if (isLight) Color(0x113B82F6) else Color(0x15FFFFFF),
+                                    fontSize = 96.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier
+                                        .align(Alignment.TopStart)
+                                        .offset(x = (-8).dp, y = (-36).dp)
+                                )
+
+                                Column(
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
                                     Row(
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        val context = LocalContext.current
-                                        IconButton(
-                                            onClick = {
-                                                val shareIntent = android.content.Intent().apply {
-                                                    action = android.content.Intent.ACTION_SEND
-                                                    putExtra(android.content.Intent.EXTRA_TEXT, "“$randomQuote” — Shared from Consistency Hub")
-                                                    type = "text/plain"
-                                                }
-                                                try {
-                                                    context.startActivity(android.content.Intent.createChooser(shareIntent, "Share Daily Motivation"))
-                                                } catch (e: Exception) {
-                                                    android.widget.Toast.makeText(context, "No app available to share", android.widget.Toast.LENGTH_SHORT).show()
-                                                }
-                                            },
-                                            modifier = Modifier.size(32.dp)
+                                        Icon(
+                                            imageVector = Icons.Default.AutoAwesome,
+                                            contentDescription = "Inspiration Star",
+                                            tint = if (isLight) SamsungBlue else OrbitViolet,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(
+                                            text = "DAILY MOTIVATION",
+                                            color = if (isLight) SamsungBlue else OrbitViolet,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            letterSpacing = 1.sp
+                                        )
+                                    }
+                                    
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                    
+                                    Text(
+                                        text = randomQuote,
+                                        color = themeTextPrimary,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        lineHeight = 22.sp,
+                                        modifier = Modifier.padding(end = 16.dp)
+                                    )
+                                    
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = "Tap quote to shuffle mindset",
+                                            color = themeTextTertiary,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            modifier = Modifier.weight(1f)
+                                        )
+
+                                        Row(
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            verticalAlignment = Alignment.CenterVertically
                                         ) {
+                                            val context = LocalContext.current
+                                            IconButton(
+                                                onClick = {
+                                                    val shareIntent = android.content.Intent().apply {
+                                                        action = android.content.Intent.ACTION_SEND
+                                                        putExtra(android.content.Intent.EXTRA_TEXT, "“$randomQuote” — Shared from Consistency Hub")
+                                                        type = "text/plain"
+                                                    }
+                                                    try {
+                                                        context.startActivity(android.content.Intent.createChooser(shareIntent, "Share Daily Motivation"))
+                                                    } catch (e: Exception) {
+                                                        android.widget.Toast.makeText(context, "No app available to share", android.widget.Toast.LENGTH_SHORT).show()
+                                                    }
+                                                },
+                                                modifier = Modifier.size(32.dp)
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Share,
+                                                    contentDescription = "Share Quote",
+                                                    tint = if (isLight) SamsungBlue else OrbitViolet,
+                                                    modifier = Modifier.size(16.dp)
+                                                )
+                                            }
+
                                             Icon(
-                                                imageVector = Icons.Default.Share,
-                                                contentDescription = "Share Quote",
+                                                imageVector = Icons.Default.Refresh,
+                                                contentDescription = "Shuffle Quote",
                                                 tint = if (isLight) SamsungBlue else OrbitViolet,
                                                 modifier = Modifier.size(16.dp)
                                             )
                                         }
-
-                                        Icon(
-                                            imageVector = Icons.Default.Refresh,
-                                            contentDescription = "Shuffle Quote",
-                                            tint = if (isLight) SamsungBlue else OrbitViolet,
-                                            modifier = Modifier.size(16.dp)
-                                        )
                                     }
                                 }
                             }
                         }
-                    }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                    // Fluid Tab Switcher Including Profile Section (One UI Segmented Layout)
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(18.dp))
-                            .background(if (isLight) Color(0xFFF1F5F9) else Color(0x1F252528))
-                            .border(1.dp, if (isLight) Color(0xFFE2E8F0) else Color(0x0EFFFFFF), RoundedCornerShape(18.dp))
-                            .padding(4.dp)
-                            .testTag("dashboard_tab_switcher")
-                    ) {
-                        DashboardTab.entries.forEach { tab ->
-                            val isActive = currentTab == tab
+                        // Fluid Tab Switcher Including Profile Section (One UI Segmented Layout)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(18.dp))
+                                .background(if (isLight) Color(0xFFF1F5F9) else Color(0x1F252528))
+                                .border(1.dp, if (isLight) Color(0xFFE2E8F0) else Color(0x0EFFFFFF), RoundedCornerShape(18.dp))
+                                .padding(4.dp)
+                                .testTag("dashboard_tab_switcher")
+                        ) {
+                            DashboardTab.entries.forEach { tab ->
+                                val isActive = currentTab == tab
 
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .run {
-                                        if (isActive && isLight) {
-                                            this.shadow(elevation = 2.dp, shape = RoundedCornerShape(14.dp), clip = false)
-                                        } else {
-                                            this
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .run {
+                                            if (isActive && isLight) {
+                                                this.shadow(elevation = 2.dp, shape = RoundedCornerShape(14.dp), clip = false)
+                                            } else {
+                                                this
+                                            }
                                         }
-                                    }
-                                    .clip(RoundedCornerShape(14.dp))
-                                    .background(if (isActive) (if (isLight) Color.White else Color(0x26FFFFFF)) else Color.Transparent)
-                                    .bounceClickable {
-                                        viewModel.selectedTab.value = tab
-                                    }
-                                    .padding(vertical = 10.dp)
-                                    .testTag("tab_${tab.name.lowercase()}"),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = when (tab) {
-                                        DashboardTab.Tasks -> "Tasks"
-                                        DashboardTab.Notes -> "Vault"
-                                        DashboardTab.Metrics -> "Metrics"
-                                        DashboardTab.Profile -> "Profile"
-                                    },
-                                    color = if (isActive) (if (isLight) Color.Black else Color.White) else themeTextSecondary,
-                                    fontSize = 13.sp,
-                                    fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Medium
-                                )
+                                        .clip(RoundedCornerShape(14.dp))
+                                        .background(if (isActive) (if (isLight) Color.White else Color(0x26FFFFFF)) else Color.Transparent)
+                                        .bounceClickable {
+                                            viewModel.selectedTab.value = tab
+                                        }
+                                        .padding(vertical = 10.dp)
+                                        .testTag("tab_${tab.name.lowercase()}"),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = when (tab) {
+                                            DashboardTab.Tasks -> "Tasks"
+                                            DashboardTab.Notes -> "Notes"
+                                            DashboardTab.Pomodoro -> "Focus"
+                                            DashboardTab.Metrics -> "Metrics"
+                                            DashboardTab.Profile -> "Profile"
+                                        },
+                                        color = if (isActive) (if (isLight) Color.Black else Color.White) else themeTextSecondary,
+                                        fontSize = 13.sp,
+                                        fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Medium
+                                    )
+                                }
                             }
                         }
                     }
@@ -729,21 +737,29 @@ fun DashboardScreen(viewModel: ConsistencyHubViewModel) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .navigationBarsPadding()
+                    .navigationBarsPadding(),
+                contentAlignment = Alignment.TopCenter
             ) {
-                AnimatedContent(
-                    targetState = currentTab,
-                    transitionSpec = {
-                        slideInHorizontally { width -> if (targetState.ordinal > initialState.ordinal) width else -width } + fadeIn() togetherWith
-                        slideOutHorizontally { width -> if (targetState.ordinal > initialState.ordinal) -width else width } + fadeOut()
-                    },
-                    label = "WorkspaceTabAnimation"
-                ) { tab ->
-                    when (tab) {
-                        DashboardTab.Tasks -> TaskTrackerTab(viewModel, isLight)
-                        DashboardTab.Notes -> NotesTab(viewModel, isLight)
-                        DashboardTab.Metrics -> MetricTrackerTab(viewModel, isLight)
-                        DashboardTab.Profile -> ProfileTab(viewModel, isLight)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .widthIn(max = 600.dp)
+                ) {
+                    AnimatedContent(
+                        targetState = currentTab,
+                        transitionSpec = {
+                            slideInHorizontally { width -> if (targetState.ordinal > initialState.ordinal) width else -width } + fadeIn() togetherWith
+                            slideOutHorizontally { width -> if (targetState.ordinal > initialState.ordinal) -width else width } + fadeOut()
+                        },
+                        label = "WorkspaceTabAnimation"
+                    ) { tab ->
+                        when (tab) {
+                            DashboardTab.Tasks -> TaskTrackerTab(viewModel, isLight)
+                            DashboardTab.Notes -> NotesTab(viewModel, isLight)
+                            DashboardTab.Pomodoro -> PomodoroTab(viewModel, isLight)
+                            DashboardTab.Metrics -> MetricTrackerTab(viewModel, isLight)
+                            DashboardTab.Profile -> ProfileTab(viewModel, isLight)
+                        }
                     }
                 }
             }
@@ -1125,6 +1141,144 @@ fun ProfileDetailItem(
 }
 
 // ==========================================
+// POMODORO FOCUS TIMER
+// ==========================================
+@Composable
+fun PomodoroTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
+    val timeLeft by viewModel.timeLeft.collectAsStateWithLifecycle()
+    val isRunning by viewModel.isTimerRunning.collectAsStateWithLifecycle()
+    val sessions by viewModel.pomodoroSessions.collectAsStateWithLifecycle()
+    val isSoundEnabled by viewModel.isSoundEnabled.collectAsStateWithLifecycle()
+    
+    val themeTextPrimary = if (isLight) Color(0xFF111827) else TextPrimary
+    val themeCardBg = if (isLight) Color(0xFFFFFFFF) else Color(0xFF1A1F2B)
+    val themeBorder = if (isLight) Color(0xFFE2E8F0) else Color(0xFF2C3445)
+
+    // Animated color for timer text when running
+    val timerColor by animateColorAsState(
+        targetValue = if (isRunning) Color(0xFF6366F1) else themeTextPrimary,
+        label = "timerColor"
+    )
+
+    // Format minutes:seconds
+    val remainingMinutes = (timeLeft / 60000).toString().padStart(2, '0')
+    val remainingSeconds = ((timeLeft % 60000) / 1000).toString().padStart(2, '0')
+    val timerDuration by viewModel.timerDuration.collectAsStateWithLifecycle()
+    val isPaused = !isRunning && timeLeft < timerDuration && timeLeft > 0
+
+    Column(
+        modifier = Modifier.fillMaxSize().padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth().testTag("timer_card"),
+            colors = CardDefaults.cardColors(containerColor = themeCardBg),
+            border = BorderStroke(1.dp, themeBorder),
+            shape = RoundedCornerShape(32.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(40.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                AnimatedContent(
+                    targetState = "$remainingMinutes:$remainingSeconds",
+                    transitionSpec = {
+                        (slideInVertically { it } + fadeIn()).togetherWith(slideOutVertically { -it } + fadeOut())
+                    },
+                    label = "timerAnimation"
+                ) { targetText ->
+                    Text(
+                        text = targetText,
+                        fontSize = 88.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = timerColor,
+                        modifier = Modifier.testTag("timer_display")
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Button(
+                        onClick = { if (isRunning) viewModel.pauseTimer() else viewModel.startTimer() },
+                        modifier = Modifier
+                            .height(56.dp)
+                            .animateContentSize(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6366F1))
+                    ) {
+                        Text(if (isRunning) "Pause" else if (isPaused) "Resume" else "Start", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    }
+                    OutlinedButton(
+                        onClick = { viewModel.resetTimer() },
+                        modifier = Modifier.height(56.dp).animateContentSize()
+                    ) {
+                        Text("Reset", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            listOf(25L, 45L, 60L).forEach { mins ->
+                val isSelected = timerDuration == mins * 60 * 1000
+                FilterChip(
+                    selected = isSelected,
+                    onClick = { viewModel.setTimerDuration(mins * 60 * 1000) },
+                    label = { Text("$mins min") },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "Sound Alerts", color = themeTextPrimary, fontWeight = FontWeight.Medium)
+            Switch(
+                checked = isSoundEnabled,
+                onCheckedChange = { viewModel.updateSoundSetting(it) }
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        Text(text = "Recent Sessions", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = themeTextPrimary)
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(sessions) { session ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = themeCardBg),
+                    border = BorderStroke(1.dp, themeBorder)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(text = "${session.durationMillis / 60000} mins", fontWeight = FontWeight.SemiBold)
+                        Text(
+                            text = java.text.SimpleDateFormat("MMM dd, HH:mm", java.util.Locale.getDefault())
+                                .format(java.util.Date(session.completedTimestamp)),
+                            color = Color.Gray
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
 // SCREEN 1: TASK TRACKER (FOCUS LIST)
 // ==========================================
 
@@ -1132,6 +1286,7 @@ fun ProfileDetailItem(
 fun TaskTrackerTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
     val tasksList by viewModel.tasks.collectAsStateWithLifecycle()
     val taskTitle by viewModel.taskTitleInput.collectAsStateWithLifecycle()
+    val taskDeadline by viewModel.taskDeadlineInput.collectAsStateWithLifecycle()
     val currentPreset by viewModel.selectedSubjectPreset.collectAsStateWithLifecycle()
     val customTagVal by viewModel.customTagInput.collectAsStateWithLifecycle()
 
@@ -1192,346 +1347,350 @@ fun TaskTrackerTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
         // Visual Completion Stats Card
         item {
             GlassCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("task_stats_card"),
-            isLight = isLight
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("task_stats_card"),
+                isLight = isLight
             ) {
-                Column {
-                    Text(
-                        text = "Focus Deck Velocity",
-                        color = themeTextPrimary,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "$completedTasksCount of $totalTasks goals achieved",
-                        color = themeTextSecondary,
-                        fontSize = 13.sp
-                    )
-                }
-
-                // Dial/Circular Indicator mapping completed percent
-                Box(
-                    modifier = Modifier.size(50.dp),
-                    contentAlignment = Alignment.Center
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val progress = if (totalTasks > 0) completedTasksCount.toFloat() / totalTasks.toFloat() else 0f
-                    val sweepAnim by animateFloatAsState(targetValue = progress * 360f, label = "gaugeSweep")
-
-                    Canvas(modifier = Modifier.size(50.dp)) {
-                        // Background track
-                        drawArc(
-                            color = themeBorder,
-                            startAngle = 0f,
-                            sweepAngle = 360f,
-                            useCenter = false,
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 5.dp.toPx())
+                    Column {
+                        Text(
+                            text = "Focus Deck Velocity",
+                            color = themeTextPrimary,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
                         )
-                        // Progress sweep
-                        drawArc(
-                            color = SamsungBlue,
-                            startAngle = -90f,
-                            sweepAngle = sweepAnim,
-                            useCenter = false,
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(
-                                width = 5.dp.toPx(),
-                                cap = androidx.compose.ui.graphics.drawscope.Stroke.DefaultCap
-                            )
+                        Text(
+                            text = "$completedTasksCount of $totalTasks goals achieved",
+                            color = themeTextSecondary,
+                            fontSize = 13.sp
                         )
                     }
 
-                    Text(
-                        text = "${(progress * 100).toInt()}%",
-                        color = themeTextPrimary,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    // Dial/Circular Indicator mapping completed percent
+                    Box(
+                        modifier = Modifier.size(50.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        val progress = if (totalTasks > 0) completedTasksCount.toFloat() / totalTasks.toFloat() else 0f
+                        val sweepAnim by animateFloatAsState(targetValue = progress * 360f, label = "gaugeSweep")
+
+                        Canvas(modifier = Modifier.size(50.dp)) {
+                            // Background track
+                            drawArc(
+                                color = themeBorder,
+                                startAngle = 0f,
+                                sweepAngle = 360f,
+                                useCenter = false,
+                                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 5.dp.toPx())
+                            )
+                            // Progress sweep
+                            drawArc(
+                                color = SamsungBlue,
+                                startAngle = -90f,
+                                sweepAngle = sweepAnim,
+                                useCenter = false,
+                                style = androidx.compose.ui.graphics.drawscope.Stroke(
+                                    width = 5.dp.toPx(),
+                                    cap = androidx.compose.ui.graphics.drawscope.Stroke.DefaultCap
+                                )
+                            )
+                        }
+
+                        Text(
+                            text = "${(progress * 100).toInt()}%",
+                            color = themeTextPrimary,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }
-    }
 
-    item {
+        item {
             Spacer(modifier = Modifier.height(16.dp))
         }
 
         // Quick Focus Add Controls Tray (moved to top of focus screen)
         item {
             Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-                .testTag("add_task_tray"),
-            shape = RoundedCornerShape(22.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = themeCardBg
-            ),
-            border = BorderStroke(1.dp, themeBorder)
-        ) {
-            Column(modifier = Modifier.padding(14.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+                    .testTag("add_task_tray"),
+                shape = RoundedCornerShape(22.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = themeCardBg
+                ),
+                border = BorderStroke(1.dp, themeBorder)
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    // Modernized, sleek Quick-Task entry
                     OutlinedTextField(
                         value = taskTitle,
                         onValueChange = { viewModel.taskTitleInput.value = it },
-                        placeholder = { Text("What study target now?") },
+                        placeholder = {
+                            Text(
+                                text = "Set a new study target...",
+                                color = themeTextTertiary
+                            )
+                        },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = themeTextPrimary,
                             unfocusedTextColor = themeTextPrimary,
                             focusedBorderColor = SamsungBlue,
-                            unfocusedBorderColor = Color.Transparent,
-                            focusedContainerColor = themeInputFocusedBg,
-                            unfocusedContainerColor = themeInputUnfocusedBg
+                            unfocusedBorderColor = themeBorder,
+                            focusedContainerColor = themeCardBg,
+                            unfocusedContainerColor = themeCardBg
                         ),
+                        trailingIcon = {
+                            IconButton(
+                                onClick = { viewModel.addNewTask() },
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(PastelPurple)
+                                    .testTag("task_add_button")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "Submit Target",
+                                    tint = Color.White
+                                )
+                            }
+                        },
                         modifier = Modifier
-                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
                             .testTag("new_task_input"),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(16.dp),
                         singleLine = true
                     )
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                    IconButton(
-                        onClick = { viewModel.addNewTask() },
-                        modifier = Modifier
-                            .size(52.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(SamsungBlue)
-                            .testTag("task_add_button")
+                    // Deadline controls
+                    val now = remember { System.currentTimeMillis() }
+                    Row(
+                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Submit Target",
-                            tint = Color.White
+                        val presets = remember {
+                            listOf(
+                                "1h" to 1L,
+                                "3h" to 3L,
+                                "24h" to 24L
+                            )
+                        }
+                        presets.forEach { (label, hours) ->
+                            val deadline = now + (hours * 3600_000L)
+                            FilterChip(
+                                selected = taskDeadline == deadline,
+                                onClick = { viewModel.taskDeadlineInput.value = deadline },
+                                label = { Text(label, fontSize = 12.sp) }
+                            )
+                        }
+                        if (taskDeadline != null) {
+                            FilterChip(selected = false, onClick = { viewModel.taskDeadlineInput.value = null }, label = { Text("Clear", fontSize = 12.sp) })
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+        }
+
+        // Subject presets scroll row
+        item {
+            val subjectList = listOf("Admin", "Algorithm", "Formula", "Meeting", "Chore")
+            Row(
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                subjectList.forEach { category ->
+                    val selected = currentPreset == category
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(if (selected) SamsungBlue else (if (isLight) Color(0xFFE2E8F0) else Color(0xFF141923)))
+                            .border(0.5.dp, if (selected) SamsungBlue else themeBorder, RoundedCornerShape(10.dp))
+                            .clickable { viewModel.selectedSubjectPreset.value = category }
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                            .testTag("preset_pill_$category")
+                    ) {
+                        Text(
+                            text = category,
+                            color = if (selected) Color.White else themeTextSecondary,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
+            }
+        }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Subject presets scroll row
-                val subjectList = listOf("Admin", "Algorithm", "Formula", "Meeting", "Chore")
-                Row(
-                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+        if (tasksList.isEmpty()) {
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 40.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    subjectList.forEach { category ->
-                        val selected = currentPreset == category
+                    Icon(
+                        imageVector = Icons.Default.RadioButtonUnchecked,
+                        contentDescription = "Zero objectives",
+                        tint = themeTextTertiary,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "No procrastination targets active.",
+                        color = themeTextSecondary,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+        } else {
+            items(tasksList, key = { it.id }) { task ->
+                val textDecoration = if (task.isCompleted) TextDecoration.LineThrough else TextDecoration.None
+                val cardAlpha by animateFloatAsState(targetValue = if (task.isCompleted) 0.5f else 1f, label = "cardAlpha")
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .graphicsLayer { alpha = cardAlpha }
+                        .testTag("task_item_${task.id}"),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (task.isCompleted) (if (isLight) Color(0x06000000) else Color(0x08FFFFFF)) else themeCardBg
+                    ),
+                    border = BorderStroke(1.dp, if (task.isCompleted) Color.Transparent else themeBorder)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Target Invalidator checkbox (fluid bouncy click)
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(if (selected) SamsungBlue else (if (isLight) Color(0xFFE2E8F0) else Color(0xFF141923)))
-                                .border(0.5.dp, if (selected) SamsungBlue else themeBorder, RoundedCornerShape(10.dp))
-                                .clickable { viewModel.selectedSubjectPreset.value = category }
-                                .padding(horizontal = 12.dp, vertical = 6.dp)
-                                .testTag("preset_pill_$category")
+                                .size(32.dp)
+                                .bounceClickable { viewModel.toggleTask(task) }
+                                .testTag("task_check_${task.id}"),
+                            contentAlignment = Alignment.Center
                         ) {
+                            Icon(
+                                imageVector = if (task.isCompleted) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+                                contentDescription = "Complete task",
+                                tint = if (task.isCompleted) ActiveEmerald else SamsungBlue,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = category,
-                                color = if (selected) Color.White else themeTextSecondary,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold
+                                text = task.title,
+                                color = if (task.isCompleted) themeTextSecondary else themeTextPrimary,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                textDecoration = textDecoration
+                            )
+
+                            Row(
+                                modifier = Modifier.padding(top = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Custom visual Tags
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(
+                                            when (task.subject) {
+                                                "Admin" -> (if (isLight) Color(0xFFFEE2E2) else PastelRed.copy(alpha = 0.2f))
+                                                "Algorithm" -> (if (isLight) Color(0xFFDBEAFE) else PastelBlue.copy(alpha = 0.2f))
+                                                "Formula" -> (if (isLight) Color(0xFFD1FAE5) else PastelGreen.copy(alpha = 0.2f))
+                                                "Meeting" -> (if (isLight) Color(0xFFFEF3C7) else PastelYellow.copy(alpha = 0.2f))
+                                                "Chore" -> (if (isLight) Color(0xFFF3E8FF) else PastelPurple.copy(alpha = 0.2f))
+                                                else -> (if (isLight) Color(0xFFE0F2FE) else SamsungBlue.copy(alpha = 0.15f))
+                                            }
+                                        )
+                                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        text = task.subject,
+                                        color = when (task.subject) {
+                                            "Admin" -> (if (isLight) Color(0xFFDC2626) else PastelRed)
+                                            "Algorithm" -> (if (isLight) Color(0xFF2563EB) else PastelBlue)
+                                            "Formula" -> (if (isLight) Color(0xFF16A34A) else PastelGreen)
+                                            "Meeting" -> (if (isLight) Color(0xFFD97706) else PastelYellow)
+                                            "Chore" -> (if (isLight) Color(0xFF9333EA) else PastelPurple)
+                                            else -> (if (isLight) SamsungBlue else SamsungBlue)
+                                        },
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+
+                                task.alertTime?.let { alertEpoch ->
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Icon(
+                                        imageVector = Icons.Default.Notifications,
+                                        contentDescription = "Scheduled Alarm",
+                                        tint = if (isLight) Color(0xFFD97706) else PastelYellow,
+                                        modifier = Modifier.size(13.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(2.dp))
+                                    val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
+                                    Text(
+                                        text = formatter.format(Date(alertEpoch)),
+                                        color = if (isLight) Color(0xFFD97706) else PastelYellow,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                            }
+                        }
+
+                        // Alert Alarm Icon trigger
+                        IconButton(
+                            onClick = { showAlertDialogForTask = task },
+                            modifier = Modifier
+                                .testTag("task_alert_trigger_${task.id}")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = "Slated Alerts",
+                                tint = if (task.alertTime != null) (if (isLight) Color(0xFFD97706) else PastelYellow) else themeTextTertiary,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+
+                        // Delete objective button
+                        IconButton(
+                            onClick = { viewModel.deleteTask(task.id) },
+                            modifier = Modifier
+                                .testTag("task_delete_${task.id}")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Sweep item",
+                                tint = themeTextSecondary,
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Custom Tag input
-                OutlinedTextField(
-                    value = customTagVal,
-                    onValueChange = { viewModel.customTagInput.value = it },
-                    placeholder = { Text("Or craft custom subcategory tag (e.g. #math)") },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = themeTextPrimary,
-                        unfocusedTextColor = themeTextPrimary,
-                        focusedBorderColor = SamsungBlue,
-                        unfocusedBorderColor = Color.Transparent,
-                        focusedContainerColor = themeInputFocusedBg,
-                        unfocusedContainerColor = themeInputUnfocusedBg
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag("custom_tag_input"),
-                    shape = RoundedCornerShape(10.dp),
-                    singleLine = true
-                )
             }
         }
-    }
-
-    item {
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        if (tasksList.isEmpty()) {
-                item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 40.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.RadioButtonUnchecked,
-                            contentDescription = "Zero objectives",
-                            tint = themeTextTertiary,
-                            modifier = Modifier.size(48.dp)
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = "No procrastination targets active.",
-                            color = themeTextSecondary,
-                            fontSize = 14.sp
-                        )
-                    }
-                }
-            } else {
-                items(tasksList, key = { it.id }) { task ->
-                    val textDecoration = if (task.isCompleted) TextDecoration.LineThrough else TextDecoration.None
-                    val cardAlpha by animateFloatAsState(targetValue = if (task.isCompleted) 0.5f else 1f, label = "cardAlpha")
-
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .graphicsLayer { alpha = cardAlpha }
-                            .testTag("task_item_${task.id}"),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (task.isCompleted) (if (isLight) Color(0x06000000) else Color(0x08FFFFFF)) else themeCardBg
-                        ),
-                        border = BorderStroke(1.dp, if (task.isCompleted) Color.Transparent else themeBorder)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(14.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            // Target Invalidator checkbox (fluid bouncy click)
-                            Box(
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .bounceClickable { viewModel.toggleTask(task) }
-                                    .testTag("task_check_${task.id}"),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = if (task.isCompleted) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
-                                    contentDescription = "Complete task",
-                                    tint = if (task.isCompleted) ActiveEmerald else SamsungBlue,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.width(12.dp))
-
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = task.title,
-                                    color = if (task.isCompleted) themeTextSecondary else themeTextPrimary,
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    textDecoration = textDecoration
-                                )
-
-                                Row(
-                                    modifier = Modifier.padding(top = 4.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    // Custom visual Tags
-                                    Box(
-                                        modifier = Modifier
-                                            .clip(RoundedCornerShape(8.dp))
-                                            .background(
-                                                when (task.subject) {
-                                                    "Admin" -> (if (isLight) Color(0xFFFEE2E2) else PastelRed.copy(alpha = 0.2f))
-                                                    "Algorithm" -> (if (isLight) Color(0xFFDBEAFE) else PastelBlue.copy(alpha = 0.2f))
-                                                    "Formula" -> (if (isLight) Color(0xFFD1FAE5) else PastelGreen.copy(alpha = 0.2f))
-                                                    "Meeting" -> (if (isLight) Color(0xFFFEF3C7) else PastelYellow.copy(alpha = 0.2f))
-                                                    "Chore" -> (if (isLight) Color(0xFFF3E8FF) else PastelPurple.copy(alpha = 0.2f))
-                                                    else -> (if (isLight) Color(0xFFE0F2FE) else SamsungBlue.copy(alpha = 0.15f))
-                                                }
-                                            )
-                                            .padding(horizontal = 8.dp, vertical = 2.dp)
-                                    ) {
-                                        Text(
-                                            text = task.subject,
-                                            color = when (task.subject) {
-                                                "Admin" -> (if (isLight) Color(0xFFDC2626) else PastelRed)
-                                                "Algorithm" -> (if (isLight) Color(0xFF2563EB) else PastelBlue)
-                                                "Formula" -> (if (isLight) Color(0xFF16A34A) else PastelGreen)
-                                                "Meeting" -> (if (isLight) Color(0xFFD97706) else PastelYellow)
-                                                "Chore" -> (if (isLight) Color(0xFF9333EA) else PastelPurple)
-                                                else -> (if (isLight) SamsungBlue else SamsungBlue)
-                                            },
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
-
-                                    task.alertTime?.let { alertEpoch ->
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Icon(
-                                            imageVector = Icons.Default.Notifications,
-                                            contentDescription = "Scheduled Alarm",
-                                            tint = if (isLight) Color(0xFFD97706) else PastelYellow,
-                                            modifier = Modifier.size(13.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(2.dp))
-                                        val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
-                                        Text(
-                                            text = formatter.format(Date(alertEpoch)),
-                                            color = if (isLight) Color(0xFFD97706) else PastelYellow,
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Medium
-                                        )
-                                    }
-                                }
-                            }
-
-                            // Alert Alarm Icon trigger
-                            IconButton(
-                                onClick = { showAlertDialogForTask = task },
-                                modifier = Modifier
-                                    .testTag("task_alert_trigger_${task.id}")
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Notifications,
-                                    contentDescription = "Slated Alerts",
-                                    tint = if (task.alertTime != null) (if (isLight) Color(0xFFD97706) else PastelYellow) else themeTextTertiary,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-
-                            // Delete objective button
-                            IconButton(
-                                onClick = { viewModel.deleteTask(task.id) },
-                                modifier = Modifier
-                                    .testTag("task_delete_${task.id}")
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Sweep item",
-                                    tint = themeTextSecondary,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
 
         item {
             Spacer(modifier = Modifier.height(24.dp))
@@ -1817,7 +1976,7 @@ fun TaskTrackerTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
 
 @Composable
 fun NotesTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
-    val displayedThoughts by viewModel.filteredThoughts.collectAsStateWithLifecycle()
+    val displayedNotes by viewModel.filteredNotes.collectAsStateWithLifecycle()
     val rawSearch by viewModel.thoughtSearchQuery.collectAsStateWithLifecycle()
 
     var showDepositDialog by remember { mutableStateOf(false) }
@@ -1841,7 +2000,7 @@ fun NotesTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
         OutlinedTextField(
             value = rawSearch,
             onValueChange = { viewModel.thoughtSearchQuery.value = it },
-            placeholder = { Text("Query formula, code block, or archived thought...") },
+            placeholder = { Text("Query notes (title, desc, tags)...") },
             leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = "Query") },
             trailingIcon = {
                 if (rawSearch.isNotEmpty()) {
@@ -1860,7 +2019,7 @@ fun NotesTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .testTag("thought_search_bar"),
+                .testTag("note_search_bar"),
             shape = RoundedCornerShape(16.dp),
             singleLine = true
         )
@@ -1879,30 +2038,30 @@ fun NotesTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
                 fontWeight = FontWeight.Bold
             )
 
-            // Add Thought float/trigger
+            // Add Note triggering
             IconButton(
                 onClick = { showDepositDialog = true },
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
                     .background(OrbitViolet)
-                    .testTag("trigger_thought_dialog")
+                    .testTag("trigger_note_dialog")
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Secure Deposit", tint = Color.White)
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Note", tint = Color.White)
             }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Two-column Masonry structured grid for thoughts layout
+        // Two-column Masonry structured grid for notes layout
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier
                 .weight(1f)
-                .testTag("thoughts_grid"),
+                .testTag("notes_grid"),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            if (displayedThoughts.isEmpty()) {
+            if (displayedNotes.isEmpty()) {
                 item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(2) }) {
                     Column(
                         modifier = Modifier
@@ -1926,11 +2085,11 @@ fun NotesTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
                     }
                 }
             } else {
-                items(displayedThoughts, key = { it.id }) { thought ->
+                items(displayedNotes, key = { it.id }) { note ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .testTag("thought_card_${thought.id}"),
+                            .testTag("note_card_${note.id}"),
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = themeCardBg
@@ -1941,17 +2100,43 @@ fun NotesTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
                             modifier = Modifier.padding(14.dp)
                         ) {
                             Text(
-                                text = thought.description,
+                                text = note.title,
                                 color = themeTextPrimary,
-                                fontSize = 14.sp,
-                                maxLines = 5,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
-
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = note.description,
+                                color = themeTextPrimary,
+                                fontSize = 14.sp,
+                                maxLines = 3,
+                                overflow = TextOverflow.Ellipsis
+                            )
                             Spacer(modifier = Modifier.height(8.dp))
+                            
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                // Priority display
+                                val prioText = when(note.priority) {
+                                    1 -> "!"
+                                    2 -> "!!"
+                                    else -> ""
+                                }
+                                Text(
+                                    text = "Priority $prioText",
+                                    color = if(note.priority > 0) PastelRed else themeTextTertiary,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                if (!note.backgroundUri.isNullOrEmpty()) Icon(Icons.Default.Wallpaper, contentDescription = null, modifier = Modifier.size(12.dp), tint = themeTextTertiary)
+                                if (!note.filePath.isNullOrEmpty()) Icon(Icons.Default.AttachFile, contentDescription = null, modifier = Modifier.size(12.dp), tint = themeTextTertiary)
+                            }
 
                             // Clickable extracted hashtags
-                            val hashes = viewModel.extractHashtags(thought.tags)
+                            val hashes = viewModel.extractHashtags(note.tags)
                             if (hashes.isNotEmpty()) {
                                 Row(
                                     modifier = Modifier.wrapContentSize().horizontalScroll(rememberScrollState()),
@@ -1988,16 +2173,16 @@ fun NotesTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = SimpleDateFormat("dd MMM, hh:mm", Locale.getDefault()).format(Date(thought.timestamp)),
+                                    text = SimpleDateFormat("dd MMM, hh:mm", Locale.getDefault()).format(Date(note.timestamp)),
                                     color = themeTextTertiary,
                                     fontSize = 9.sp
                                 )
 
                                 IconButton(
-                                    onClick = { viewModel.deleteThought(thought.id) },
+                                    onClick = { viewModel.deleteNote(note.id) },
                                     modifier = Modifier
                                         .size(24.dp)
-                                        .testTag("thought_delete_${thought.id}")
+                                        .testTag("note_delete_${note.id}")
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Delete,
@@ -2016,14 +2201,19 @@ fun NotesTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
 
     // Secure Deposit Dialog Modal
     if (showDepositDialog) {
-        val entryDesc by viewModel.thoughtDescriptionInput.collectAsStateWithLifecycle()
-        val entryTags by viewModel.thoughtTagsInput.collectAsStateWithLifecycle()
+        val context = LocalContext.current
+        val entryTitle by viewModel.noteTitleInput.collectAsStateWithLifecycle()
+        val entryDesc by viewModel.noteDescriptionInput.collectAsStateWithLifecycle()
+        val entryTags by viewModel.noteTagsInput.collectAsStateWithLifecycle()
+        val entryPriority by viewModel.notePriorityInput.collectAsStateWithLifecycle()
+        val entryBgUri by viewModel.noteBackgroundUriInput.collectAsStateWithLifecycle()
+        val entryFilePath by viewModel.noteFilePathInput.collectAsStateWithLifecycle()
 
         Dialog(onDismissRequest = { showDepositDialog = false }) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .testTag("deposit_thought_dialog"),
+                    .testTag("deposit_note_dialog"),
                 shape = RoundedCornerShape(26.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = if (isLight) Color.White else DarkSlate
@@ -2031,60 +2221,68 @@ fun NotesTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
                 border = BorderStroke(1.dp, themeBorder)
             ) {
                 Column(
-                    modifier = Modifier.padding(22.dp)
+                    modifier = Modifier.padding(22.dp).verticalScroll(rememberScrollState())
                 ) {
                     Text(
-                        text = "Deposit Thought Archive",
+                        text = "Deposit New Note",
                         color = themeTextPrimary,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    Text(
-                        text = "Write your brainstorming or study notes below securely stored in your local SQL layer.",
-                        color = themeTextSecondary,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(top = 2.dp, bottom = 18.dp)
-                    )
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                    // Textarea prompt
+                    // Input fields
+                    OutlinedTextField(
+                        value = entryTitle,
+                        onValueChange = { viewModel.noteTitleInput.value = it },
+                        placeholder = { Text("Title") },
+                        modifier = Modifier.fillMaxWidth().testTag("note_title_input"),
+                        shape = RoundedCornerShape(14.dp),
+                        singleLine = true
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = entryDesc,
-                        onValueChange = { viewModel.thoughtDescriptionInput.value = it },
-                        placeholder = { Text("Describe the logic block, code, formula or daily summary here...") },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = themeTextPrimary,
-                            unfocusedTextColor = themeTextPrimary,
-                            focusedBorderColor = OrbitViolet,
-                            unfocusedBorderColor = themeBorder,
-                            focusedContainerColor = themeInputFocusedBg,
-                            unfocusedContainerColor = themeInputUnfocusedBg
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(120.dp)
-                            .testTag("thought_entry_input"),
-                        shape = RoundedCornerShape(14.dp),
-                        maxLines = 5
+                        onValueChange = { viewModel.noteDescriptionInput.value = it },
+                        placeholder = { Text("Description") },
+                        modifier = Modifier.fillMaxWidth().height(100.dp).testTag("note_desc_input"),
+                        shape = RoundedCornerShape(14.dp)
                     )
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    // Comma tags prompt
+                    Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = entryTags,
-                        onValueChange = { viewModel.thoughtTagsInput.value = it },
-                        placeholder = { Text("Tags as raw comma list (e.g. math, code, lock)") },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = themeTextPrimary,
-                            unfocusedTextColor = themeTextPrimary,
-                            focusedBorderColor = OrbitViolet,
-                            unfocusedBorderColor = themeBorder,
-                            focusedContainerColor = themeInputFocusedBg,
-                            unfocusedContainerColor = themeInputUnfocusedBg
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("thought_tags_input"),
+                        onValueChange = { viewModel.noteTagsInput.value = it },
+                        placeholder = { Text("Tags (comma separated)") },
+                        modifier = Modifier.fillMaxWidth().testTag("note_tags_input"),
+                        shape = RoundedCornerShape(14.dp),
+                        singleLine = true
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = "Priority (0-Low, 2-High)", fontSize = 12.sp, color = themeTextSecondary)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        (0..2).forEach { p ->
+                            FilterChip(
+                                selected = entryPriority == p,
+                                onClick = { viewModel.notePriorityInput.value = p },
+                                label = { Text(p.toString()) }
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = entryBgUri,
+                        onValueChange = { viewModel.noteBackgroundUriInput.value = it },
+                        placeholder = { Text("Background Wallpaper URI (optional)") },
+                        modifier = Modifier.fillMaxWidth().testTag("note_bg_input"),
+                        shape = RoundedCornerShape(14.dp),
+                        singleLine = true
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = entryFilePath,
+                        onValueChange = { viewModel.noteFilePathInput.value = it },
+                        placeholder = { Text("File Path (optional)") },
+                        modifier = Modifier.fillMaxWidth().testTag("note_file_input"),
                         shape = RoundedCornerShape(14.dp),
                         singleLine = true
                     )
@@ -2103,15 +2301,16 @@ fun NotesTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
 
                         Button(
                             onClick = {
-                                viewModel.addNewThought()
+                                viewModel.addNewNote()
+                                android.widget.Toast.makeText(context, "Note saved!", android.widget.Toast.LENGTH_SHORT).show()
                                 showDepositDialog = false
                             },
-                            modifier = Modifier.testTag("submit_thought_button"),
+                            modifier = Modifier.testTag("submit_note_button"),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = OrbitViolet
+                                containerColor = PastelPurple
                             )
                         ) {
-                            Text(text = "Archive Thought", color = Color.White, fontWeight = FontWeight.Bold)
+                            Text(text = "Save Note", color = Color.White, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -2126,9 +2325,12 @@ fun NotesTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
 
 @Composable
 fun MetricTrackerTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
+    val context = LocalContext.current
     val loggedList by viewModel.studyLogs.collectAsStateWithLifecycle()
     val inputHours by viewModel.studyHoursInput.collectAsStateWithLifecycle()
     val inputTopic by viewModel.studyTopicInput.collectAsStateWithLifecycle()
+    val dailyGoalInput by viewModel.dailyGoalInput.collectAsStateWithLifecycle()
+    val dailyGoal by viewModel.dailyGoal.collectAsStateWithLifecycle()
 
     val weeklyMetrics = viewModel.calculateWeeklyEffortMetrics(loggedList)
     val totalWeeklyHours = weeklyMetrics.sumOf { it.hoursLogged }
@@ -2148,13 +2350,58 @@ fun MetricTrackerTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
             .padding(horizontal = 24.dp)
             .verticalScroll(rememberScrollState())
     ) {
+        LaunchedEffect(Unit) {
+            viewModel.scheduleWeeklyPerformanceReminder()
+        }
+
         Spacer(modifier = Modifier.height(10.dp))
+
+        val context = LocalContext.current
+        Button(
+            onClick = {
+                val reportPath = viewModel.generatePdfReport()
+                if (reportPath.isNotEmpty()) {
+                    android.widget.Toast.makeText(context, "PDF Report saved at: $reportPath", android.widget.Toast.LENGTH_LONG).show()
+                } else {
+                    android.widget.Toast.makeText(context, "Failed to generate report", android.widget.Toast.LENGTH_LONG).show()
+                }
+            },
+            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+        ) {
+            Text("Download PDF Report")
+        }
+
+        Button(
+            onClick = {
+                val exportPath = viewModel.exportStudyLogsToJson()
+                if (exportPath.isNotEmpty()) {
+                    android.widget.Toast.makeText(context, "JSON Export saved at: $exportPath", android.widget.Toast.LENGTH_LONG).show()
+                } else {
+                    android.widget.Toast.makeText(context, "Failed to export JSON", android.widget.Toast.LENGTH_LONG).show()
+                }
+            },
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+        ) {
+            Text("Export JSON Data")
+        }
+
+        // Set Daily Goal
+        androidx.compose.material3.OutlinedTextField(
+            value = dailyGoalInput,
+            onValueChange = {
+                viewModel.dailyGoalInput.value = it
+                it.toDoubleOrNull()?.let { goal -> viewModel.updateDailyGoal(goal) }
+            },
+            label = { Text("Daily Study Goal (Hours)") },
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp).animateContentSize()
+        )
 
         // 7-Day Goal Tracker Canvas & Progress Bars
         GlassCard(
             modifier = Modifier
                 .fillMaxWidth()
-                .testTag("7_day_goal_card"),
+                .testTag("7_day_goal_card")
+                .animateContentSize(),
             isLight = isLight
         ) {
             Text(
@@ -2195,8 +2442,7 @@ fun MetricTrackerTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
                 verticalAlignment = Alignment.Bottom
             ) {
                 weeklyMetrics.forEach { metric ->
-                    val dailyTarget = 10.0
-                    val ratio = (metric.hoursLogged / dailyTarget).coerceIn(0.0, 1.0).toFloat()
+                    val ratio = (metric.hoursLogged / dailyGoal).coerceIn(0.0, 1.0).toFloat()
                     val barHeightAnim by animateFloatAsState(targetValue = ratio, label = "barHeight")
 
                     Column(
@@ -2304,7 +2550,15 @@ fun MetricTrackerTab(viewModel: ConsistencyHubViewModel, isLight: Boolean) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { viewModel.addNewStudyLog() },
+                onClick = {
+                    val hours = inputHours.toDoubleOrNull()
+                    if (inputTopic.isNotBlank() && hours != null && hours > 0) {
+                        viewModel.addNewStudyLog()
+                        android.widget.Toast.makeText(context, "Log added!", android.widget.Toast.LENGTH_SHORT).show()
+                    } else {
+                        android.widget.Toast.makeText(context, "Invalid input: Topic and valid Positive Hours required", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
