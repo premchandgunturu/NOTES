@@ -11,7 +11,7 @@ private val DarkColorScheme = darkColorScheme(
     secondary = OrbitViolet,
     tertiary = ActiveEmerald,
     background = PureBlack,
-    surface = DarkSlate,
+    surface = PureBlack,
     onPrimary = PureBlack,
     onSecondary = TextPrimary,
     onTertiary = PureBlack,
@@ -42,6 +42,7 @@ fun MyApplicationTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
+        shapes = Shapes,
         content = content
     )
 }
